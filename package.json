@@ -1,0 +1,30 @@
+{
+  "name": "backend-developer-chalange",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@nestjs/core": "^10.4.4",
+    "@nestjs/graphql": "^12.2.0",
+    "apollo-server-express": "^3.13.0",
+    "axios": "^1.7.7",
+    "express": "^4.21.0",
+    "mongoose": "^8.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.7",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5"
+  }
+}
