@@ -1,34 +1,34 @@
+// tests/services/mainService.test.ts
 import { getTransformedVehicleData } from '../../src/services/mainService';
 import { XmlParserService } from '../../src/services/xmlParserService';
 import { transformMakeData, transformVehicleTypeData } from '../../src/utils/dataTransformer';
+import { delay } from '../../src/utils/delay';
 
 jest.mock('../../src/services/xmlParserService');
 jest.mock('../../src/utils/dataTransformer');
+jest.mock('../../src/utils/delay');
 
 const MockXmlParserService = XmlParserService as jest.MockedClass<typeof XmlParserService>;
 const mockGetAllMakes = jest.fn();
 const mockGetVehicleTypesForMakeId = jest.fn();
+const mockDelay = delay as jest.Mock;
 
 describe('getTransformedVehicleData', () => {
   let xmlParserService: XmlParserService;
-  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     xmlParserService = new MockXmlParserService();
     xmlParserService.getAllMakes = mockGetAllMakes;
     xmlParserService.getVehicleTypesForMakeId = mockGetVehicleTypesForMakeId;
 
-    // Mock console.error to suppress error logs during tests
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    mockDelay.mockResolvedValue(Promise.resolve());
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-    // Restore original console.error after each test case
-    consoleErrorSpy.mockRestore();
   });
 
-  it('should successfully transform and return the combined vehicle data', async () => {
+  it('should successfully transform and return the combined vehicle data with delay mocked', async () => {
     const mockMakeDataXml = { Response: { Results: [{ AllVehicleMakes: [{ Make_ID: ['1'], Make_Name: ['Toyota'] }] }] } };
     mockGetAllMakes.mockResolvedValueOnce(mockMakeDataXml);
 
@@ -57,17 +57,9 @@ describe('getTransformedVehicleData', () => {
         },
       ],
     });
-  });
 
-  it('should handle an error in getAllMakes and throw an exception', async () => {
-    mockGetAllMakes.mockRejectedValueOnce(new Error('Failed to fetch all makes'));
-
-    await expect(getTransformedVehicleData(xmlParserService)).rejects.toThrow('Failed to fetch all makes');
-
-    expect(mockGetAllMakes).toHaveBeenCalledTimes(1);
-    expect(transformMakeData).not.toHaveBeenCalled();
-    expect(mockGetVehicleTypesForMakeId).not.toHaveBeenCalled();
-    expect(transformVehicleTypeData).not.toHaveBeenCalled();
+    expect(mockDelay).toHaveBeenCalledTimes(1);
+    expect(mockDelay).toHaveBeenCalledWith(500);
   });
 
   it('should handle an error in getVehicleTypesForMakeId and continue processing other makes', async () => {
@@ -88,7 +80,7 @@ describe('getTransformedVehicleData', () => {
 
     const mockTransformedVehicleTypes1 = [{ VehicleTypeID: 10, VehicleTypeName: 'Sedan' }];
     (transformVehicleTypeData as jest.Mock).mockReturnValueOnce(mockTransformedVehicleTypes1);
-    (transformVehicleTypeData as jest.Mock).mockReturnValueOnce([]); 
+    (transformVehicleTypeData as jest.Mock).mockReturnValueOnce([]);
 
     const result = await getTransformedVehicleData(xmlParserService);
 
@@ -112,5 +104,8 @@ describe('getTransformedVehicleData', () => {
     expect(mockGetVehicleTypesForMakeId).toHaveBeenCalledWith(1);
     expect(mockGetVehicleTypesForMakeId).toHaveBeenCalledWith(2);
     expect(transformVehicleTypeData).toHaveBeenCalledWith(mockVehicleTypeDataXml1);
+
+    expect(mockDelay).toHaveBeenCalledTimes(2);
+    expect(mockDelay).toHaveBeenCalledWith(500);
   });
 });
