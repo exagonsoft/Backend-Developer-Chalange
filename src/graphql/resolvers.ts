@@ -1,5 +1,4 @@
 import { Make, PrismaClient } from '@prisma/client';
-import { GraphQLResolveInfo } from 'graphql';
 import logger from '../utils/logger';
 
 const prisma = new PrismaClient();
