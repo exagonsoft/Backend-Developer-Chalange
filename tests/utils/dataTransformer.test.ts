@@ -27,8 +27,8 @@ describe('dataTransformer', () => {
       };
       const result = transformMakeData(mockXml);
       expect(result).toEqual([
-        { MakeID: 1, MakeName: 'Toyota' },
-        { MakeID: 2, MakeName: 'Honda' },
+        { makeId: 1, makeName: 'Toyota' },
+        { makeId: 2, makeName: 'Honda' },
       ]);
     });
   });
@@ -59,8 +59,8 @@ describe('dataTransformer', () => {
       };
       const result = transformVehicleTypeData(mockXml);
       expect(result).toEqual([
-        { VehicleTypeID: 10, VehicleTypeName: 'Sedan' },
-        { VehicleTypeID: 11, VehicleTypeName: 'SUV' },
+        { typeId: 10, typeName: 'Sedan' },
+        { typeId: 11, typeName: 'SUV' },
       ]);
     });
   });
