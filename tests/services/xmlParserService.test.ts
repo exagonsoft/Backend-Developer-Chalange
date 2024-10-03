@@ -2,7 +2,6 @@ import axios from 'axios';
 import { XmlParserService } from '../../src/services/xmlParserService';
 import { parseStringPromise } from 'xml2js';
 
-// Mock axios and xml2js parseStringPromise
 jest.mock('axios');
 jest.mock('xml2js', () => ({
     parseStringPromise: jest.fn(),
@@ -14,9 +13,7 @@ describe('XmlParserService', () => {
 
     beforeEach(() => {
         xmlParserService = new XmlParserService();
-        // Suppress console.error only for this test suite
         consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((message) => {
-            // Filter out only specific messages that are related to expected errors
             if (
                 !message.includes('Error fetching all makes') &&
                 !message.includes('Error fetching vehicle types for make ID')
@@ -28,17 +25,14 @@ describe('XmlParserService', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
-        // Restore the original console.error after each test
         consoleErrorSpy.mockRestore();
     });
 
     describe('getAllMakes', () => {
         it('should fetch all makes and parse XML data successfully', async () => {
-            // Mock the axios get response
             const mockXmlData = '<Response><Results><AllVehicleMakes><Make_ID>1</Make_ID><Make_Name>TestMake</Make_Name></AllVehicleMakes></Results></Response>';
             (axios.get as jest.Mock).mockResolvedValueOnce({ data: mockXmlData });
 
-            // Mock the parseStringPromise to return a JSON object
             const mockParsedData = { Response: { Results: [{ AllVehicleMakes: [{ Make_ID: ['1'], Make_Name: ['TestMake'] }] }] } };
             (parseStringPromise as jest.Mock).mockResolvedValueOnce(mockParsedData);
 
