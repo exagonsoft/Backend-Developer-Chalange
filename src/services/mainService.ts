@@ -3,31 +3,33 @@ import { transformMakeData, transformVehicleTypeData } from '../utils/dataTransf
 import prisma from '../config/config';
 import { delay } from '../utils/delay';
 import { Make, VehicleType } from '../interfaces/interfaces';
+import logger from '../utils/logger';
 
 export async function getTransformedVehicleData(
   xmlParserService = new XmlParserService(),
   requestDelay: number = 500,
   batchSize: number = 5
 ) {
-  const makeDataXml = await xmlParserService.getAllMakes();
-  const makes: Make[] = makeDataXml ? transformMakeData(makeDataXml) : [];
-
-  if (!makes || makes.length === 0) {
-    console.error('No makes found to process.');
-    return { allVehicleData: [] };
-  }
-
   try {
+    logger.info('Starting the transformation process for vehicle data...');
+    const makeDataXml = await xmlParserService.getAllMakes();
+    const makes: Make[] = makeDataXml ? transformMakeData(makeDataXml) : [];
+
+    if (!makes || makes.length === 0) {
+      logger.warn('No makes found to process.');
+      return { allVehicleData: [] };
+    }
+
     const allVehicleData: Make[] = [];
 
     for (let i = 0; i < makes.length; i += batchSize) {
       const makeBatch = makes.slice(i, i + batchSize);
-      console.log(`Processing batch of ${makeBatch.length} makes...`);
+      logger.info(`Processing batch of ${makeBatch.length} makes...`);
 
       const vehicleTypePromises = makeBatch.map(async (make) => {
         try {
           if (!make || !make.makeId) {
-            console.error(`Invalid makeId for make: ${JSON.stringify(make)}`);
+            logger.error(`Invalid makeId for make: ${JSON.stringify(make)}`);
             return { ...make, vehicleTypes: [] };
           }
 
@@ -37,31 +39,29 @@ export async function getTransformedVehicleData(
 
           make.vehicleTypes = vehicleTypes || [];
 
-          console.log(`Creating or checking Make record: makeId=${make.makeId}, makeName=${make.makeName}`);
+          logger.info(`Creating or checking Make record: makeId=${make.makeId}, makeName=${make.makeName}`);
 
-          // Check if the make already exists
           const existingMake = await prisma.make.findUnique({
             where: { makeId: make.makeId },
           });
 
           if (!existingMake) {
-            console.log(`Inserting new Make record: ${make.makeId} - ${make.makeName}`);
+            logger.info(`Inserting new Make record: ${make.makeId} - ${make.makeName}`);
             await prisma.make.create({
               data: { makeId: make.makeId, makeName: make.makeName },
             });
           } else {
-            console.log(`Make record already exists: ${make.makeId} - ${make.makeName}`);
+            logger.info(`Make record already exists: ${make.makeId} - ${make.makeName}`);
           }
 
-          // Persist VehicleType data if it exists
           if (vehicleTypes && vehicleTypes.length > 0) {
             for (const vehicleType of vehicleTypes) {
-              // Check if the vehicle type already exists
               const existingVehicleType = await prisma.vehicleType.findUnique({
                 where: { typeId: vehicleType.typeId },
               });
 
               if (!existingVehicleType) {
+                logger.info(`Inserting new VehicleType record: ${vehicleType.typeId} - ${vehicleType.typeName}`);
                 await prisma.vehicleType.create({
                   data: {
                     typeId: vehicleType.typeId,
@@ -70,14 +70,14 @@ export async function getTransformedVehicleData(
                   },
                 });
               } else {
-                console.log(`VehicleType record already exists: ${vehicleType.typeId} - ${vehicleType.typeName}`);
+                logger.info(`VehicleType record already exists: ${vehicleType.typeId} - ${vehicleType.typeName}`);
               }
             }
           }
 
           return make;
-        } catch (error) {
-          console.error(`Failed to fetch or save vehicle types for make ID ${make.makeId}: ${error}`);
+        } catch (error: any) {
+          logger.error(`Failed to fetch or save vehicle types for make ID ${make.makeId}: ${error.message}`, { error });
           return { ...make, vehicleTypes: [] };
         }
       });
@@ -86,9 +86,11 @@ export async function getTransformedVehicleData(
       allVehicleData.push(...processedBatch);
     }
 
+    logger.info('Successfully processed all vehicle data.');
     return { allVehicleData };
-  } catch (error) {
-    throw new Error(`Database operation failed: ${error}`);
+  } catch (error: any) {
+    logger.error(`Database operation failed: ${error.message}`, { error });
+    throw new Error(`Database operation failed: ${error.message}`);
   } finally {
     await prisma.$disconnect();
   }
