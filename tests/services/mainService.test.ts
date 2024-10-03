@@ -34,7 +34,6 @@ describe('getTransformedVehicleData', () => {
 
     mockDelay.mockResolvedValue(Promise.resolve());
 
-    // Properly type the Prisma client methods as Jest mocks
     (prisma.make.findUnique as jest.Mock).mockReset();
     (prisma.make.create as jest.Mock).mockReset();
     (prisma.vehicleType.findUnique as jest.Mock).mockReset();
@@ -42,11 +41,10 @@ describe('getTransformedVehicleData', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks(); // Use resetAllMocks to reset mocks back to their original state
+    jest.resetAllMocks();
   });
 
   it('should handle batches correctly and persist data in the database using Prisma', async () => {
-    // Mock XML data for makes
     const mockMakeDataXml = {
       Response: {
         Results: [
@@ -61,31 +59,26 @@ describe('getTransformedVehicleData', () => {
     };
     mockGetAllMakes.mockResolvedValueOnce(mockMakeDataXml);
 
-    // Mock transformed data for makes
     const mockTransformedMakes = [
       { makeId: 1, makeName: 'Toyota' },
       { makeId: 2, makeName: 'Honda' },
     ];
     (transformMakeData as jest.Mock).mockReturnValueOnce(mockTransformedMakes);
 
-    // Mock vehicle type data for each make
     const mockVehicleTypeDataXml1 = {
       Response: {
         Results: [{ VehicleTypesForMakeIds: [{ VehicleTypeId: ['10'], VehicleTypeName: ['Sedan'] }] }],
       },
     };
     mockGetVehicleTypesForMakeId.mockResolvedValueOnce(mockVehicleTypeDataXml1);
-    mockGetVehicleTypesForMakeId.mockResolvedValueOnce(undefined); // Mock empty response for Honda
+    mockGetVehicleTypesForMakeId.mockResolvedValueOnce(undefined);
 
-    // Mock transformed vehicle types data
     const mockTransformedVehicleTypes1 = [{ typeId: 10, typeName: 'Sedan' }];
     (transformVehicleTypeData as jest.Mock).mockReturnValueOnce(mockTransformedVehicleTypes1);
-    (transformVehicleTypeData as jest.Mock).mockReturnValueOnce([]); // Honda has no vehicle types
+    (transformVehicleTypeData as jest.Mock).mockReturnValueOnce([]);
 
-    // Execute the function under test
     const result = await getTransformedVehicleData(xmlParserService, 500, 1);
 
-    // Assertions for the final returned data
     expect(result).toEqual({
       allVehicleData: [
         {
@@ -101,7 +94,6 @@ describe('getTransformedVehicleData', () => {
       ],
     });
 
-    // Additional assertions for API calls and delays
     expect(mockGetAllMakes).toHaveBeenCalledTimes(1);
     expect(transformMakeData).toHaveBeenCalledWith(mockMakeDataXml);
     expect(mockGetVehicleTypesForMakeId).toHaveBeenCalledWith(1);

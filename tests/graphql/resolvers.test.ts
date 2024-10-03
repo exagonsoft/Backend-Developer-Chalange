@@ -4,7 +4,6 @@ import { gql } from 'apollo-server-core';
 import resolvers from '../../src/graphql/resolvers';
 import prisma from '../../src/config/config';
 
-// Mock Prisma Client
 jest.mock('../../src/config/config', () => ({
     make: {
         findMany: jest.fn(),
