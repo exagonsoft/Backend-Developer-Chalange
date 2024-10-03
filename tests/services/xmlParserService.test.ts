@@ -11,21 +11,17 @@ describe('XmlParserService', () => {
     let xmlParserService: XmlParserService;
     let consoleErrorSpy: jest.SpyInstance;
 
-    beforeEach(() => {
-        xmlParserService = new XmlParserService();
-        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((message) => {
-            if (
-                !message.includes('Error fetching all makes') &&
-                !message.includes('Error fetching vehicle types for make ID')
-            ) {
-                console.error(message);
-            }
-        });
+    beforeAll(() => {
+        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
+    afterAll(() => {
         consoleErrorSpy.mockRestore();
+    });
+
+    beforeEach(() => {
+        xmlParserService = new XmlParserService();
+        jest.clearAllMocks();
     });
 
     describe('getAllMakes', () => {
