@@ -4,7 +4,7 @@
   "main": "server.ts",
   "scripts": {
     "test": "jest",
-    "start": "node server.ts"
+    "start": "npx ts-node server.ts"
   },
   "keywords": [],
   "author": "",
