@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "start": "node server.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +13,7 @@
   "dependencies": {
     "@nestjs/core": "^10.4.4",
     "@nestjs/graphql": "^12.2.0",
+    "@types/xml2js": "^0.4.14",
     "apollo-server-express": "^3.13.0",
     "axios": "^1.7.7",
     "express": "^4.21.0",
