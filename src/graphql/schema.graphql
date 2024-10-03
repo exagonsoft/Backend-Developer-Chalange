@@ -1,0 +1,22 @@
+type VehicleType {
+  typeId: Int!
+  typeName: String!
+}
+
+type Make {
+  makeId: Int!
+  makeName: String!
+  vehicleTypes: [VehicleType!]
+}
+
+type MakePage {
+  makes: [Make!]
+  totalCount: Int
+  totalPages: Int
+  currentPage: Int
+}
+
+type Query {
+  getAllMakes(page: Int = 1, pageSize: Int = 10): MakePage
+  getMakeById(makeId: Int!): Make
+}
