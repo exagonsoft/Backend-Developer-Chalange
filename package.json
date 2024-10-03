@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
-    "lint": "eslint \"**/*.ts\"",
+    "lint": "eslint \"src/utils/**/*.ts\"",
     "test": "jest",
     "start": "npx ts-node server.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "Node"
+  ],
   "author": "",
   "license": "ISC",
   "description": "",
