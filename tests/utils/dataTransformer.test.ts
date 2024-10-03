@@ -1,9 +1,19 @@
 import { transformMakeData, transformVehicleTypeData } from '../../src/utils/dataTransformer';
 
-describe('Data Transformation Functions', () => {
+describe('dataTransformer', () => {
   describe('transformMakeData', () => {
-    it('should correctly transform make XML data into JSON format', () => {
-      const mockMakeXml = {
+    it('should handle empty Results gracefully', () => {
+      const mockXml = {
+        Response: {
+          Results: [{}],
+        },
+      };
+      const result = transformMakeData(mockXml);
+      expect(result).toEqual([]);
+    });
+
+    it('should transform valid make data correctly', () => {
+      const mockXml = {
         Response: {
           Results: [
             {
@@ -15,73 +25,43 @@ describe('Data Transformation Functions', () => {
           ],
         },
       };
-
-      const expectedTransformedData = [
+      const result = transformMakeData(mockXml);
+      expect(result).toEqual([
         { MakeID: 1, MakeName: 'Toyota' },
         { MakeID: 2, MakeName: 'Honda' },
-      ];
-
-      const result = transformMakeData(mockMakeXml);
-
-      expect(result).toEqual(expectedTransformedData);
-    });
-
-    it('should return an empty array if there are no makes in the XML', () => {
-      const mockEmptyMakeXml = {
-        Response: {
-          Results: [
-            {
-              AllVehicleMakes: [],
-            },
-          ],
-        },
-      };
-
-      const result = transformMakeData(mockEmptyMakeXml);
-
-      expect(result).toEqual([]);
+      ]);
     });
   });
 
   describe('transformVehicleTypeData', () => {
-    it('should correctly transform vehicle type XML data into JSON format', () => {
-      const mockVehicleTypeXml = {
+    it('should handle empty Results gracefully', () => {
+      const mockXml = {
+        Response: {
+          Results: [{}],
+        },
+      };
+      const result = transformVehicleTypeData(mockXml);
+      expect(result).toEqual([]);
+    });
+
+    it('should transform valid vehicle type data correctly', () => {
+      const mockXml = {
         Response: {
           Results: [
             {
               VehicleTypesForMakeIds: [
                 { VehicleTypeId: ['10'], VehicleTypeName: ['Sedan'] },
-                { VehicleTypeId: ['20'], VehicleTypeName: ['SUV'] },
+                { VehicleTypeId: ['11'], VehicleTypeName: ['SUV'] },
               ],
             },
           ],
         },
       };
-
-      const expectedTransformedData = [
+      const result = transformVehicleTypeData(mockXml);
+      expect(result).toEqual([
         { VehicleTypeID: 10, VehicleTypeName: 'Sedan' },
-        { VehicleTypeID: 20, VehicleTypeName: 'SUV' },
-      ];
-
-      const result = transformVehicleTypeData(mockVehicleTypeXml);
-
-      expect(result).toEqual(expectedTransformedData);
-    });
-
-    it('should return an empty array if there are no vehicle types in the XML', () => {
-      const mockEmptyVehicleTypeXml = {
-        Response: {
-          Results: [
-            {
-              VehicleTypesForMakeIds: [],
-            },
-          ],
-        },
-      };
-
-      const result = transformVehicleTypeData(mockEmptyVehicleTypeXml);
-
-      expect(result).toEqual([]);
+        { VehicleTypeID: 11, VehicleTypeName: 'SUV' },
+      ]);
     });
   });
 });
