@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
-    "lint": "eslint 'src/**/*.ts'",
+    "lint": "eslint \"**/*.ts\"",
     "test": "jest",
     "start": "npx ts-node server.ts"
   },
@@ -32,6 +32,8 @@
     "@eslint/js": "^9.11.1",
     "@types/graphql": "^14.2.3",
     "@types/jest": "^29.5.13",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
     "eslint": "^9.11.1",
     "globals": "^15.10.0",
     "graphql": "^16.9.0",
