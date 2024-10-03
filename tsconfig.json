@@ -1,14 +1,27 @@
 {
   "compilerOptions": {
+    "target": "es6",
     "module": "commonjs",
-    "target": "es2017",
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "baseUrl": "./",
-    "outDir": "./dist",
+    "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@models/*": [
+        "src/database/models/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@interfaces/*": [
+        "src/interfaces/*"
+      ]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["src/**/*.ts", "src/**/*.js"],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
