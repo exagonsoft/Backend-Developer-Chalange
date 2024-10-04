@@ -2,7 +2,7 @@ services:
   vehicle-service:
     build:
       context: .
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     ports:
       - "4000:4000"
     environment:
