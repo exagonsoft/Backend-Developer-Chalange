@@ -4,7 +4,7 @@
   "main": "server.ts",
   "scripts": {
     "lint": "eslint \"src/utils/**/*.ts\"",
-    "test": "jest",
+    "test": "jest --coverage",
     "start": "npx ts-node server.ts"
   },
   "keywords": [
