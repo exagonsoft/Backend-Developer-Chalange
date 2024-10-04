@@ -1,5 +1,3 @@
-import { XmlParserService } from './src/services/xmlParserService';
-import { getTransformedVehicleData } from './src/services/mainService';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import express, { json } from 'express';
@@ -8,15 +6,22 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import resolvers from './src/graphql/resolvers';
 import prisma from './src/config/config';
+import { fork } from 'child_process';
 
-async function initializeDatabase(xmlParserService: XmlParserService) {
+async function initializeDatabaseInBackground() {
+  const scriptPath = path.join(__dirname, './src/scripts/populateDatabase.ts');
+  const childProcess = fork(scriptPath, [], { detached: true });
+  childProcess.unref();
+  console.log('Database population started in a detached process...');
+}
+
+export async function initializeDatabase() {
   console.log('Checking if the database is already populated...');
   const makeCount = await prisma.make.count();
 
   if (makeCount === 0) {
-    console.log('Database is empty. Populating with transformed vehicle data...');
-    await getTransformedVehicleData(xmlParserService, 100, 10);
-    console.log('Database has been successfully populated.');
+    console.log('Database is empty. Starting background population...');
+    initializeDatabaseInBackground();
   } else {
     console.log('Database is already populated.');
   }
@@ -49,10 +54,8 @@ async function startApolloServer() {
 }
 
 async function main() {
-  const xmlParserService = new XmlParserService();
-
   try {
-    await initializeDatabase(xmlParserService);
+    await initializeDatabase();
 
     await startApolloServer();
   } catch (error) {
