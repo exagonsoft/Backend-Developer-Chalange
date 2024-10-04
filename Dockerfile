@@ -13,12 +13,16 @@ RUN rm -rf src tests *.log
 
 FROM node:18-slim
 
+RUN apt-get update && apt-get install -y openssl
+
 ENV NODE_ENV=production
 ENV PORT=4000
 
 WORKDIR /app
 
 COPY --from=builder /app /app
+
+RUN chown -R node:node /app/node_modules
 
 EXPOSE 4000
 
