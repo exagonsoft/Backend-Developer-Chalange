@@ -19,7 +19,7 @@
       ]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "./src/scripts/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.js", "./src/scripts/**/*.ts", "server.ts"],
   "exclude": [
     "node_modules",
     "dist"
