@@ -1,8 +1,6 @@
 services:
   vehicle-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: exagonsoft/vehicle-service:latest
     ports:
       - "4000:4000"
     environment:
