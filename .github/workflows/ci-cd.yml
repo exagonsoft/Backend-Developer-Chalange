@@ -32,6 +32,11 @@ jobs:
       - name: Run Tests
         run: npm run test
 
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   docker-build:
     name: Build Docker Image
     runs-on: ubuntu-latest
