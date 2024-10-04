@@ -94,7 +94,7 @@ npm run lint
 To run the application using Docker, ensure Docker is installed and run the following command:
 
 ```bash
-docker-compose up --build
+docker-compose up -d
 ```
 
 This will:
