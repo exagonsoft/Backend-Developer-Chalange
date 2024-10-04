@@ -3,6 +3,10 @@
 
 A robust and scalable service to parse, transform, and manage vehicle data using the latest technologies in a modern development stack.
 
+[![CI/CD Pipeline](https://github.com/exagonsoft/Backend-Developer-Chalange/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/exagonsoft/Backend-Developer-Chalange/actions/workflows/ci-cd.yml)
+[![codecov](https://codecov.io/gh/exagonsoft/Backend-Developer-Chalange/branch/master/graph/badge.svg?token=TOKEN)](https://codecov.io/gh/exagonsoft/repo)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/1e27ade79c4c4f858256dcb5ab4a6c97)](https://app.codacy.com/gh/exagonsoft/Backend-Developer-Chalange/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 ## 🚀 Project Overview
 The **Vehicle Data Service** is designed to fetch vehicle makes and types from the [NHTSA API](https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=XML), transform the data into JSON format, and expose it via a GraphQL API for easy access. The service is built with scalability and performance in mind, ensuring it can handle high traffic and provide low-latency responses.
 
