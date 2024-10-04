@@ -26,7 +26,7 @@ const resolvers = {
           include: { vehicleTypes: true },
         });
 
-        logger.info(`Successfully fetched ${makes.length} makes.`);
+        logger.info(`Successfully fetched ${makes.length} makes for page=${page} with pageSize=${pageSize}.`);
 
         return {
           makes,
@@ -51,7 +51,7 @@ const resolvers = {
 
         if (!make) {
           logger.warn(`No make found with makeId=${args.makeId}`);
-          throw new Error(`Make with ID ${args.makeId} not found.`);
+          return null;
         }
 
         logger.info(`Successfully fetched make details for makeId=${args.makeId}`);
