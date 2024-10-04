@@ -149,3 +149,10 @@ The CI/CD pipeline is implemented using **GitHub Actions** and is designed to:
 ## 👥 Contributors
 - **Your Name** - [@yourusername](https://github.com/yourusername)
 
+
+---
+
+## OBSERVATIONS 
+
+- Issue in [NHTSA API](https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=XML)
+  * The NHTSA API has a concurrency restrictions blocking access for a short time to prevent sever overload; Therefore the data fetch can not be implemented in big bulks but in small packages.
