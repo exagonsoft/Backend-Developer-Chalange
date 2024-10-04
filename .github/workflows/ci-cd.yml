@@ -1,10 +1,9 @@
 name: CI/CD Pipeline
 
-# Run the entire workflow only when pushing to the master branch
 on:
   push:
     branches:
-      - master  # Run the workflow only when pushing to the `master` branch
+      - master
 
 jobs:
   build-and-test:
@@ -38,7 +37,7 @@ jobs:
   docker-build:
     name: Build Docker Image
     runs-on: ubuntu-latest
-    needs: build-and-test  # Ensure it runs only after `build-and-test` completes successfully
+    needs: build-and-test
 
     steps:
       - name: Checkout code
@@ -48,27 +47,12 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/vehicle-service:latest .
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+            echo "Error: DOCKER_USERNAME is not set or empty"
+            exit 1
+          fi
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/vehicle-service:latest .
 
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/vehicle-service:latest
-
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: docker-build  # Ensure it runs only after `docker-build` completes successfully
-
-    steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Deploy to Production Server
-        run: |
-          ssh -o StrictHostKeyChecking=no user@your_server_ip_address << 'EOF'
-            docker pull ${{ secrets.DOCKER_USERNAME }}/vehicle-service:latest
-            docker stop vehicle-service || true
-            docker rm vehicle-service || true
-            docker run -d --name vehicle-service -p 4000:4000 --env-file /path/to/your/.env ${{ secrets.DOCKER_USERNAME }}/vehicle-service:latest
-          EOF
