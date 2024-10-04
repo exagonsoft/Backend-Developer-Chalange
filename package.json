@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "eslint \"src/utils/**/*.ts\"",
     "test": "jest --coverage",
-    "start": "npx ts-node server.ts"
+    "start": "npx ts-node server.ts",
+    "build": "tsc"
   },
   "keywords": [
     "Node"
