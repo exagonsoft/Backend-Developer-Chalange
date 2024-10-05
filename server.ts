@@ -47,11 +47,7 @@ export async function initializeDatabase() {
 }
 
 async function startApolloServer() {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const schemaPath = isProduction
-    ? path.join(__dirname, '../graphql/schema.graphql')
-    : path.join(__dirname, './src/graphql/schema.graphql');
-  const typeDefs = readFileSync(schemaPath, 'utf8');
+  const typeDefs = readFileSync(path.join(__dirname, './src/graphql/schema.graphql'), 'utf8');
 
   const server = new ApolloServer({
     typeDefs,
