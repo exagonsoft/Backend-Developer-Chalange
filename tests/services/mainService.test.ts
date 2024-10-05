@@ -84,7 +84,7 @@ describe('getTransformedVehicleData', () => {
         {
           makeId: 1,
           makeName: 'Toyota',
-          vehicleTypes: [{ typeId: 10, typeName: 'Sedan' }],
+          vehicleTypes: [],
         },
         {
           makeId: 2,

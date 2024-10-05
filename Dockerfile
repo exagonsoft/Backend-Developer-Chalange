@@ -1,5 +1,7 @@
 FROM node:18 AS builder
 
+RUN apt-get update -y && apt-get install -y openssl
+
 WORKDIR /app
 
 COPY package*.json ./

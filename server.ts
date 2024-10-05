@@ -10,20 +10,39 @@ import { fork } from 'child_process';
 
 async function initializeDatabaseInBackground() {
   const scriptPath = path.join(__dirname, './src/scripts/populateDatabase.ts');
-  const childProcess = fork(scriptPath, [], { detached: true });
+
+  console.log(`Starting child process with script path: ${scriptPath}`);
+
+  const childProcess = fork(scriptPath, [], { detached: true, stdio: 'ignore' });
+
+  console.log(`Database population started in a detached process with PID: ${childProcess.pid}`);
+
+  childProcess.on('error', (err) => {
+    console.error(`Failed to start child process: ${err.message}`);
+  });
+
+  childProcess.on('exit', (code, signal) => {
+    if (code === 0) {
+      console.log('Child process completed successfully.');
+    } else {
+      console.error(`Child process exited with code ${code} and signal ${signal}.`);
+    }
+  });
+
   childProcess.unref();
-  console.log('Database population started in a detached process...');
+  console.log('Parent process detached from child process.');
 }
 
 export async function initializeDatabase() {
-  console.log('Checking if the database is already populated...');
+  console.log('Checking if the database is updated...');
   const makeCount = await prisma.make.count();
 
-  if (makeCount === 0) {
+  // Correct way (implement a function to request the all makes from the api and get the total)
+  if (makeCount < 11556) {
     console.log('Database is empty. Starting background population...');
     initializeDatabaseInBackground();
   } else {
-    console.log('Database is already populated.');
+    console.log('Database is up to date.');
   }
 }
 

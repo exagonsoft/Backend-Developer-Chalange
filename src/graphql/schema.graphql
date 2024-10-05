@@ -16,15 +16,8 @@ type MakePage {
   currentPage: Int
 }
 
-type VehicleTypePage {
-  vehicleTypes: [VehicleType!]!
-  totalCount: Int!
-  totalPages: Int!
-  currentPage: Int!
-}
-
 type Query {
   getAllMakes(page: Int = 1, pageSize: Int = 10): MakePage
   getMakeById(makeId: Int!): Make
-  getAllVehicleTypes(page: Int!, pageSize: Int!): VehicleTypePage!
+  getAllVehicleTypes: [VehicleType]
 }
