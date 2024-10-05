@@ -5,14 +5,14 @@ import resolvers from '../../src/graphql/resolvers';
 import prisma from '../../src/config/config';
 
 jest.mock('../../src/config/config', () => ({
-    make: {
-        findMany: jest.fn(),
-        count: jest.fn(),
-        findUnique: jest.fn(),
-    },
-    vehicleType: {
-        findMany: jest.fn(),
-    },
+  make: {
+    findMany: jest.fn(),
+    count: jest.fn(),
+    findUnique: jest.fn(),
+  },
+  vehicleType: {
+    findMany: jest.fn(),
+  },
 }));
 
 const typeDefs = gql`
@@ -38,37 +38,38 @@ const typeDefs = gql`
   type Query {
     getAllMakes(page: Int!, pageSize: Int!): MakePage!
     getMakeById(makeId: Int!): Make
+    getAllVehicleTypes: [VehicleType]
   }
 `;
 
 function isSingleResult(responseBody: any): responseBody is { kind: 'single'; singleResult: { data?: any; errors?: any } } {
-    return responseBody && responseBody.kind === 'single';
+  return responseBody && responseBody.kind === 'single';
 }
 
 describe('GraphQL Resolvers', () => {
-    let server: ApolloServer;
+  let server: ApolloServer;
 
-    beforeAll(() => {
-        const schema = makeExecutableSchema({ typeDefs, resolvers });
-        server = new ApolloServer({
-            schema,
-        });
+  beforeAll(() => {
+    const schema = makeExecutableSchema({ typeDefs, resolvers });
+    server = new ApolloServer({
+      schema,
     });
+  });
 
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    describe('Query: getAllMakes', () => {
-        it('should return a paginated list of makes', async () => {
-            const mockMakes = [
-                { makeId: 1, makeName: 'Toyota' },
-                { makeId: 2, makeName: 'Honda' },
-            ];
-            (prisma.make.findMany as jest.Mock).mockResolvedValue(mockMakes);
-            (prisma.make.count as jest.Mock).mockResolvedValue(2);
+  describe('Query: getAllMakes', () => {
+    it('should return a paginated list of makes', async () => {
+      const mockMakes = [
+        { makeId: 1, makeName: 'Toyota' },
+        { makeId: 2, makeName: 'Honda' },
+      ];
+      (prisma.make.findMany as jest.Mock).mockResolvedValue(mockMakes);
+      (prisma.make.count as jest.Mock).mockResolvedValue(2);
 
-            const query = `
+      const query = `
         query GetAllMakes($page: Int!, $pageSize: Int!) {
           getAllMakes(page: $page, pageSize: $pageSize) {
             makes {
@@ -82,33 +83,33 @@ describe('GraphQL Resolvers', () => {
         }
       `;
 
-            const result = await server.executeOperation({
-                query,
-                variables: { page: 1, pageSize: 2 },
-            });
+      const result = await server.executeOperation({
+        query,
+        variables: { page: 1, pageSize: 2 },
+      });
 
-            if (isSingleResult(result.body)) {
-                expect(result.body.singleResult.errors).toBeUndefined();
-                expect(result.body.singleResult.data).toEqual({
-                    getAllMakes: expect.objectContaining({
-                      makes: expect.any(Array),
-                      totalCount: expect.any(Number),
-                      totalPages: expect.any(Number),
-                      currentPage: expect.any(Number)
-                    })
-                  });
-            } else {
-                throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
-            }
-
-            expect(prisma.make.count).toBe;
+      if (isSingleResult(result.body)) {
+        expect(result.body.singleResult.errors).toBeUndefined();
+        expect(result.body.singleResult.data).toEqual({
+          getAllMakes: expect.objectContaining({
+            makes: expect.any(Array),
+            totalCount: expect.any(Number),
+            totalPages: expect.any(Number),
+            currentPage: expect.any(Number)
+          })
         });
+      } else {
+        throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
+      }
 
-        it('should return an empty list if no makes are found', async () => {
-            (prisma.make.findMany as jest.Mock).mockResolvedValue([]);
-            (prisma.make.count as jest.Mock).mockResolvedValue(0);
+      expect(prisma.make.count).toBe;
+    });
 
-            const query = `
+    it('should return an empty list if no makes are found', async () => {
+      (prisma.make.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.make.count as jest.Mock).mockResolvedValue(0);
+
+      const query = `
         query GetAllMakes($page: Int!, $pageSize: Int!) {
           getAllMakes(page: $page, pageSize: $pageSize) {
             makes {
@@ -122,35 +123,40 @@ describe('GraphQL Resolvers', () => {
         }
       `;
 
-            const result = await server.executeOperation({
-                query,
-                variables: { page: 1, pageSize: 2 },
-            });
+      const result = await server.executeOperation({
+        query,
+        variables: { page: 1, pageSize: 2 },
+      });
 
-            if (isSingleResult(result.body)) {
-                expect(result.body.singleResult.errors).toBeUndefined();
-                expect(result.body.singleResult.data).toEqual({
-                    getAllMakes: expect.objectContaining({
-                      makes: expect.any(Array),
-                      totalCount: expect.any(Number),
-                      totalPages: expect.any(Number),
-                      currentPage: expect.any(Number)
-                    })
-                  });
-            } else {
-                throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
-            }
-
-            expect(prisma.make.count).toBe;
+      if (isSingleResult(result.body)) {
+        expect(result.body.singleResult.errors).toBeUndefined();
+        expect(result.body.singleResult.data).toEqual({
+          getAllMakes: expect.objectContaining({
+            makes: expect.any(Array),
+            totalCount: expect.any(Number),
+            totalPages: expect.any(Number),
+            currentPage: expect.any(Number)
+          })
         });
+      } else {
+        throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
+      }
+
+      expect(prisma.make.count).toBe;
     });
+  });
 
-    describe('Query: getMakeById', () => {
-        it('should return a specific make by ID', async () => {
-            const mockMake = { makeId: 440, makeName: 'ASTON MARTIN', vehicleTypes: [] };
-            (prisma.make.findUnique as jest.Mock).mockResolvedValue(mockMake);
+  describe('Query: getMakeById', () => {
+    it('should return a specific make by ID', async () => {
+      const mockMake = {
+        makeId: 457, makeName: 'ACG', vehicleTypes: [{
+          "typeId": 9,
+          "typeName": "Low Speed Vehicle (LSV)"
+        }]
+      };
+      (prisma.make.findUnique as jest.Mock).mockResolvedValue(mockMake);
 
-            const query = `
+      const query = `
         query GetMakeById($makeId: Int!) {
           getMakeById(makeId: $makeId) {
             makeId
@@ -163,31 +169,34 @@ describe('GraphQL Resolvers', () => {
         }
       `;
 
-            const result = await server.executeOperation({
-                query,
-                variables: { makeId: 440 },
-            });
+      const result = await server.executeOperation({
+        query,
+        variables: { makeId: 457 },
+      });
 
-            if (isSingleResult(result.body)) {
-                expect(result.body.singleResult.errors).toBeUndefined();
-                expect(result.body.singleResult.data).toEqual({
-                    getMakeById: {
-                        makeId: 440,
-                        makeName: 'ASTON MARTIN',
-                        vehicleTypes: [],
-                    },
-                });
-            } else {
-                throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
-            }
-
-            expect(prisma.make.findUnique).toBe;
+      if (isSingleResult(result.body)) {
+        expect(result.body.singleResult.errors).toBeUndefined();
+        expect(result.body.singleResult.data).toEqual({
+          getMakeById: {
+            makeId: 457,
+            makeName: 'ACG',
+            vehicleTypes: [{
+              "typeId": 9,
+              "typeName": "Low Speed Vehicle (LSV)"
+            }],
+          },
         });
+      } else {
+        throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
+      }
 
-        it('should return null if make ID does not exist', async () => {
-            (prisma.make.findUnique as jest.Mock).mockResolvedValue(null);
+      expect(prisma.make.findUnique).toBe;
+    });
 
-            const query = `
+    it('should return null if make ID does not exist', async () => {
+      (prisma.make.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const query = `
         query GetMakeById($makeId: Int!) {
           getMakeById(makeId: $makeId) {
             makeId
@@ -200,19 +209,19 @@ describe('GraphQL Resolvers', () => {
         }
       `;
 
-            const result = await server.executeOperation({
-                query,
-                variables: { makeId: 999999 },
-            });
+      const result = await server.executeOperation({
+        query,
+        variables: { makeId: 999999 },
+      });
 
-            if (isSingleResult(result.body)) {
-                expect(result.body.singleResult.errors).toBe;
-                expect(result.body.singleResult.data).toBeNull;
-            } else {
-                throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
-            }
+      if (isSingleResult(result.body)) {
+        expect(result.body.singleResult.errors).toBe;
+        expect(result.body.singleResult.data).toBeNull;
+      } else {
+        throw new Error(`Unexpected response format: ${JSON.stringify(result.body)}`);
+      }
 
-            expect(prisma.make.findUnique).toBe;
-        });
+      expect(prisma.make.findUnique).toBe;
     });
+  });
 });
