@@ -1,8 +1,9 @@
-FROM node:18 AS builder
+FROM node:18
 
 WORKDIR /app
 
 COPY package*.json ./
+
 RUN npm install
 
 COPY . .
@@ -11,17 +12,11 @@ RUN npx prisma generate
 
 RUN npm run build
 
-FROM node:18
-
-ENV NODE_ENV=production
-ENV PORT=4000
-
 RUN adduser --disabled-password appuser
+
+RUN chown -R appuser:appuser /app
+
 USER appuser
-
-WORKDIR /app
-
-COPY --from=builder /app /app
 
 EXPOSE 4000
 

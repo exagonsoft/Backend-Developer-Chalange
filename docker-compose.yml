@@ -1,6 +1,7 @@
 services:
   vehicle-service:
     image: exagonsoft/vehicle-service:latest
+    restart: "always"
     ports:
       - "4000:4000"
     environment:
