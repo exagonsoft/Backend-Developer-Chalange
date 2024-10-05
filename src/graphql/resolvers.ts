@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, VehicleType } from '@prisma/client';
 import logger from '../utils/logger';
 import { Make } from '@interfaces/interfaces';
 
@@ -60,6 +60,20 @@ const resolvers = {
       } catch (error: any) {
         logger.error(`Error fetching make with ID ${args.makeId}: ${error.message}`, { error });
         throw new Error(`Failed to fetch make with ID ${args.makeId}. Please try again later.`);
+      }
+    },
+
+    getAllVehicleTypes: async (_: any, args: {  }): Promise<VehicleType[]> => {
+      try {
+        logger.info(`Fetching vehicle types`);
+
+        const vehicleTypes = await prisma.vehicleType.findMany();
+
+        logger.info(`Successfully fetched ${vehicleTypes.length} vehicle types`);
+        return vehicleTypes;
+      } catch (error: any) {
+        logger.error(`Error fetching makes: ${error.message}`, { error });
+        throw new Error('Failed to fetch makes. Please try again later.');
       }
     },
   },
