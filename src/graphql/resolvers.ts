@@ -24,13 +24,30 @@ const resolvers = {
         const makes = await prisma.make.findMany({
           skip,
           take: pageSize,
-          include: { vehicleTypes: true },
+          include: {
+            makeTypes: {
+              select: {
+                VehicleType: {
+                  select: {
+                    typeId: true,
+                    typeName: true,
+                  },
+                },
+              },
+            },
+          },
         });
+
+        const formattedMakes = makes.map((make) => ({
+          makeId: make.makeId,
+          makeName: make.makeName,
+          vehicleTypes: make.makeTypes.map((makeType) => makeType.VehicleType),
+        }));
 
         logger.info(`Successfully fetched ${makes.length} makes for page=${page} with pageSize=${pageSize}.`);
 
         return {
-          makes,
+          makes: formattedMakes,
           totalCount,
           totalPages: Math.ceil(totalCount / pageSize),
           currentPage: page,
@@ -47,7 +64,18 @@ const resolvers = {
 
         const make = await prisma.make.findUnique({
           where: { makeId: args.makeId },
-          include: { vehicleTypes: true },
+          include: {
+            makeTypes: {
+              select: {
+                VehicleType: {
+                  select: {
+                    typeId: true,
+                    typeName: true,
+                  },
+                },
+              },
+            },
+          },
         });
 
         if (!make) {
@@ -55,15 +83,22 @@ const resolvers = {
           return null;
         }
 
+        const formattedMake = {
+          makeId: make.makeId,
+          makeName: make.makeName,
+          vehicleTypes: make.makeTypes.map((makeType) => makeType.VehicleType),
+        };
+
         logger.info(`Successfully fetched make details for makeId=${args.makeId}`);
-        return make;
+        return formattedMake;
       } catch (error: any) {
         logger.error(`Error fetching make with ID ${args.makeId}: ${error.message}`, { error });
         throw new Error(`Failed to fetch make with ID ${args.makeId}. Please try again later.`);
       }
     },
 
-    getAllVehicleTypes: async (_: any, args: {  }): Promise<VehicleType[]> => {
+
+    getAllVehicleTypes: async (_: any, args: {}): Promise<VehicleType[]> => {
       try {
         logger.info(`Fetching vehicle types`);
 
@@ -83,9 +118,19 @@ const resolvers = {
       try {
         logger.info(`Fetching vehicle types for makeId=${parent.makeId}`);
 
-        const vehicleTypes = await prisma.vehicleType.findMany({
+        const makeVehicleTypes = await prisma.makeVehicleType.findMany({
           where: { makeId: parent.makeId },
+          include: {
+            VehicleType: {
+              select: {
+                typeId: true,
+                typeName: true,
+              },
+            },
+          },
         });
+
+        const vehicleTypes = makeVehicleTypes.map((makeType) => makeType.VehicleType);
 
         logger.info(`Successfully fetched ${vehicleTypes.length} vehicle types for makeId=${parent.makeId}`);
         return vehicleTypes;
@@ -94,6 +139,7 @@ const resolvers = {
         throw new Error(`Failed to fetch vehicle types for makeId ${parent.makeId}. Please try again later.`);
       }
     },
+
   },
 };
 
