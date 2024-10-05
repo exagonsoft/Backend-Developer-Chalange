@@ -37,7 +37,8 @@ export async function initializeDatabase() {
   console.log('Checking if the database is updated...');
   const makeCount = await prisma.make.count();
 
-  if (makeCount === 0) {
+  // Correct way (implement a function to request the all makes from the api and get the total)
+  if (makeCount < 11556) {
     console.log('Database is empty. Starting background population...');
     initializeDatabaseInBackground();
   } else {
