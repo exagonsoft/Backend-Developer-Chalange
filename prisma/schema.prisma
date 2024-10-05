@@ -16,14 +16,23 @@ datasource db {
 }
 
 model Make {
-  makeId      Int            @id @default(autoincrement())
+  makeId      Int                  @id @default(autoincrement())
   makeName    String
-  vehicleTypes VehicleType[]
+  makeTypes   MakeVehicleType[]
 }
 
 model VehicleType {
-  typeId   Int    @id @default(autoincrement())
-  typeName String
-  makeId   Int
-  Make     Make   @relation(fields: [makeId], references: [makeId])
+  typeId      Int                  @id @default(autoincrement())
+  typeName    String
+  typeMakes   MakeVehicleType[]
+}
+
+model MakeVehicleType {
+  id          Int                  @id @default(autoincrement())
+  makeId      Int
+  typeId      Int
+  Make        Make                 @relation(fields: [makeId], references: [makeId])
+  VehicleType VehicleType          @relation(fields: [typeId], references: [typeId])
+
+  @@unique([makeId, typeId])
 }
