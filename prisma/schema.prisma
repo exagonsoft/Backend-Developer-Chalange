@@ -16,13 +16,13 @@ datasource db {
 }
 
 model Make {
-  makeId      Int                  @id @default(autoincrement())
+  makeId      Int                  @id
   makeName    String
   makeTypes   MakeVehicleType[]
 }
 
 model VehicleType {
-  typeId      Int                  @id @default(autoincrement())
+  typeId      Int                  @id
   typeName    String
   typeMakes   MakeVehicleType[]
 }
