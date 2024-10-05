@@ -22,6 +22,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Verify Prisma Schema
+        run: npx prisma validate
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Debug Prisma Client Directory
+        run: ls -R node_modules/@prisma
+
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+
       - name: Set Environment Variables
         run: |
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
