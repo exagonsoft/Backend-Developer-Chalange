@@ -44,7 +44,7 @@ The **Vehicle Data Service** is designed to fetch vehicle makes and types from t
 ### Prerequisites
 - Node.js 18+
 - Docker and Docker Compose
-- PostgreSQL instance (local or remote)
+- PostgreSQL instance (only for local environment)
 
 ### Step-by-Step Setup
 1. **Create a `.env` file in the root directory:**
@@ -102,10 +102,67 @@ This will:
 2. Start the PostgreSQL database container.
 3. Run the `vehicle-service` container.
 
-### Environment Variables for Docker
-Make sure to set the following environment variables in your `.env` file or Docker Compose configuration:
+## 📑 APP FEATURES
+1. Data fetching service
+   - Get all the Vehicles From the registry
+   - Runs only if the DB is outdated
+   - While running check for duplicated values
+   - Run in an isolated thread
+2. REST API Endpoints
+   - getAllMakes (return all vehicles using pagination)
+     ```graphql
+     query GetAllMakes ($page: Int, $pageSize: Int) {
+         getAllMakes(page: $page, pageSize : $pageSize){
+             makes {
+                makeId
+                makeName
+                vehicleTypes{
+                    typeId
+                    typeName
+                }
+             }
+             totalCount
+             totalPages
+             currentPage
+         }
+      }
+      ------------------------------------
+      {
+          "page": 1, 
+          "pageSize": 10
+      }
+      ```
+   - getMakeById (return details of an specific vehicle)
+     ```graphql
+     query GetMakeById ($makeId: Int!) {
+          getMakeById(makeId: $makeId){
+              makeId
+              makeName
+              vehicleTypes{
+                  typeId
+                  typeName
+              }
+          }
+      }
+      ------------------------------------
+      {
+          "makeId": 440
+      }
+      ```
+   - getAllVehicleTypes (return the list of vehicles types)
+     ```graphql
+     query GetAllVehicleTypes {
+         getAllVehicleTypes {
+             typeId
+             typeName
+         }
+      }
+      ------------------------------------
+      {
+         
+      }
+      ```
 
-- `DATABASE_URL`: Connection string for the PostgreSQL database.
 
 ## 🔄 CI/CD Pipeline
 The CI/CD pipeline is implemented using **GitHub Actions** and is designed to:
@@ -153,7 +210,7 @@ The CI/CD pipeline is implemented using **GitHub Actions** and is designed to:
 
 ---
 
-## OBSERVATIONS 
+## OBSERVATIONS
 
 - Issue in [NHTSA API](https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=XML)
   * The NHTSA API has a concurrency restrictions blocking access for a short time to prevent sever overload; Therefore the data fetch can not be implemented in big bulks but in small packages.
