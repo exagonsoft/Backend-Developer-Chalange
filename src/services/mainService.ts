@@ -15,6 +15,8 @@ export async function getTransformedVehicleData(
     const makeDataXml = await xmlParserService.getAllMakes();
     const makes: Make[] = makeDataXml ? transformMakeData(makeDataXml) : [];
 
+    logger.info(`Fetched Makes: ${makes}`);
+
     if (!makes || makes.length === 0) {
       logger.warn('No makes found to process.');
       return { allVehicleData: [] };
@@ -24,7 +26,7 @@ export async function getTransformedVehicleData(
 
     for (let i = 0; i < makes.length; i += batchSize) {
       const makeBatch = makes.slice(i, i + batchSize);
-      logger.info(`Processing batch of ${makeBatch.length} makes...`);
+      logger.info(`Processing batch ${i / batchSize + 1} of ${Math.ceil(makes.length / batchSize)} with ${makeBatch.length} makes...`);
 
       const vehicleTypePromises = makeBatch.map(async (make) => {
         try {
@@ -34,13 +36,13 @@ export async function getTransformedVehicleData(
           }
 
           await delay(requestDelay);
+          logger.info(`Fetching vehicle types for makeId=${make.makeId}...`);
           const vehicleTypeDataXml = await xmlParserService.getVehicleTypesForMakeId(make.makeId);
           const vehicleTypes: VehicleType[] = vehicleTypeDataXml ? transformVehicleTypeData(vehicleTypeDataXml) : [];
 
           make.vehicleTypes = vehicleTypes || [];
 
-          logger.info(`Creating or checking Make record: makeId=${make.makeId}, makeName=${make.makeName}`);
-
+          logger.info(`Checking Make record: makeId=${make.makeId}, makeName=${make.makeName}`);
           const existingMake = await prisma.make.findUnique({
             where: { makeId: make.makeId },
           });
@@ -56,6 +58,7 @@ export async function getTransformedVehicleData(
 
           if (vehicleTypes && vehicleTypes.length > 0) {
             for (const vehicleType of vehicleTypes) {
+              logger.info(`Checking VehicleType record: ${vehicleType.typeId} - ${vehicleType.typeName}`);
               const existingVehicleType = await prisma.vehicleType.findUnique({
                 where: { typeId: vehicleType.typeId },
               });
@@ -66,11 +69,34 @@ export async function getTransformedVehicleData(
                   data: {
                     typeId: vehicleType.typeId,
                     typeName: vehicleType.typeName,
-                    makeId: make.makeId,
                   },
                 });
               } else {
                 logger.info(`VehicleType record already exists: ${vehicleType.typeId} - ${vehicleType.typeName}`);
+              }
+
+              logger.info(`Checking MakeVehicleType relation for makeId=${make.makeId} and typeId=${vehicleType.typeId}`);
+              const existingMakeVehicleType = await prisma.makeVehicleType.findUnique({
+                where: {
+                  makeId_typeId: {
+                    makeId: make.makeId,
+                    typeId: vehicleType.typeId,
+                  },
+                },
+              });
+
+              if (!existingMakeVehicleType) {
+                logger.info(
+                  `Inserting new MakeVehicleType relation: makeId=${make.makeId}, typeId=${vehicleType.typeId}`
+                );
+                await prisma.makeVehicleType.create({
+                  data: {
+                    makeId: make.makeId,
+                    typeId: vehicleType.typeId,
+                  },
+                });
+              } else {
+                logger.info(`MakeVehicleType relation already exists: makeId=${make.makeId}, typeId=${vehicleType.typeId}`);
               }
             }
           }
@@ -83,6 +109,7 @@ export async function getTransformedVehicleData(
       });
 
       const processedBatch = await Promise.all(vehicleTypePromises);
+      logger.info(`Finished processing batch ${i / batchSize + 1}.`);
       allVehicleData.push(...processedBatch);
     }
 
