@@ -12,7 +12,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://default:lbx7wrmQ8HYd@ep-dark-cake-a4igc6ta-pooler.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require&pgbouncer=true&connect_timeout=30"
+  url      = "postgres://default:lbx7wrmQ8HYd@ep-dark-cake-a4igc6ta-pooler.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require&pgbouncer=true&connection_limit=1000"
 }
 
 model Make {
