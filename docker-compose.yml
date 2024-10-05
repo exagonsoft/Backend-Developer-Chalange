@@ -9,6 +9,9 @@ services:
       PORT: 4000
     command: >
       sh -c "
+        apt-get update -y &&
+        apt-get install -y openssl &&
+        npx prisma generate &&
         npx prisma migrate deploy &&
         node dist/index.js
       "
