@@ -8,7 +8,6 @@ services:
       NODE_ENV: production
       DATABASE_URL: "postgres://default:lbx7wrmQ8HYd@ep-dark-cake-a4igc6ta-pooler.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require&pgbouncer=true&connect_timeout=30"
       PORT: 4000
-      PRISMA_CLIENT_ENGINE_TYPE: "binary"
     command: >
       sh -c "
         npx prisma migrate deploy &&

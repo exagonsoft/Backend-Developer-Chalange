@@ -8,6 +8,10 @@ RUN npm install
 
 COPY . .
 
+ENV NODE_ENV=production
+ENV PORT=4000
+ENV PRISMA_CLIENT_ENGINE_TYPE=binary
+
 RUN npx prisma generate
 
 RUN npm run build
